@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health & Wellness Assessment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+            white-space: pre-line;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .bot-message {
+            background-color: #e3f2fd;
+            margin-right: auto;
+            position: relative;
+        }
+        .bot-message::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 10px 10px 10px 0;
+            border-style: solid;
+            border-color: transparent #e3f2fd transparent transparent;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+            position: relative;
+        }
+        .user-message::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 10px 0 10px 10px;
+            border-style: solid;
+            border-color: transparent transparent transparent #007bff;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #007bff;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .score-display {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 10px;
+            display: none;
+            animation: slideDown 0.5s ease-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .score-display .score-label {
+            font-size: 18px;
+            color: #666;
+        }
+        .score-display .score-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #00bfff);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        .restart-button {
+            display: none;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .typing-indicator {
+            display: none;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        .typing-indicator span {
+            height: 10px;
+            width: 10px;
+            background-color: #007bff;
+            display: inline-block;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .assessment-section {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .assessment-section h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .assessment-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .assessment-section li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Health & Wellness Assessment</h1>
+        <div class="score-display" id="score-display">
+            <div class="score-label">Your Health Score</div>
+            <div class="score-value" id="score-value">0</div>
+            <div class="score-label">out of 10</div>
+        </div>
+        <div class="progress-bar" id="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    Hello! I'm your Health & Wellness assistant. I'll help you assess your health habits and provide personalized recommendations. You can answer my questions naturally - I'll understand what you mean! Let's begin with a few questions about your lifestyle.
+                </div>
+            </div>
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your answer here...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <div class="restart-button">
+            <button onclick="restartAssessment()">Start New Assessment</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreValue = document.getElementById('score-value');
+        const progressBar = document.getElementById('progress-bar');
+        const progress = document.getElementById('progress');
+        const restartButton = document.querySelector('.restart-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function updateProgress(current, total) {
+            progressBar.style.display = 'block';
+            progress.style.width = `${(current / total) * 100}%`;
+        }
+
+        function showScore(score) {
+            scoreDisplay.style.display = 'block';
+            scoreValue.textContent = score;
+            restartButton.style.display = 'block';
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                userInput.value = '';
+                showTypingIndicator();
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideTypingIndicator();
+                    if (data.error) {
+                        addMessage('Sorry, there was an error processing your request.');
+                    } else {
+                        addMessage(data.response);
+                        if (data.is_question) {
+                            updateProgress(data.current_question, data.total_questions);
+                        } else if (data.final_score !== undefined) {
+                            showScore(data.final_score);
+                        }
+                    }
+                })
+                .catch(error => {
+                    hideTypingIndicator();
+                    addMessage('Sorry, there was an error connecting to the server.');
+                });
+            }
+        }
+
+        function restartAssessment() {
+            fetch('/')
+                .then(() => {
+                    chatMessages.innerHTML = '';
+                    scoreDisplay.style.display = 'none';
+                    progressBar.style.display = 'none';
+                    restartButton.style.display = 'none';
+                    addMessage("Hello! I'm your Health & Wellness assistant. I'll help you assess your health habits and provide personalized recommendations. You can answer my questions naturally - I'll understand what you mean! Let's begin with a few questions about your lifestyle.");
+                });
+        }
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
